@@ -8,5 +8,6 @@ import java.util.List;
  */
 public interface WriteReadble {
     void write(Collection<Person> group);
+
     List<Person> read();
 }

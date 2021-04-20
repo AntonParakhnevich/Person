@@ -49,6 +49,7 @@ public class App {
         workFile.write(sortedGroup);
         System.out.println(workFile.read());
 
+
     }
 
     private static Set<Person> deleteDoublePerson(List<Person> group) {

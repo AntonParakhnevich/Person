@@ -9,6 +9,7 @@ import java.util.List;
 public class Work {
     private WriteReadble readble;
 
+
     public Work(WriteReadble readble) {
         this.readble = readble;
     }

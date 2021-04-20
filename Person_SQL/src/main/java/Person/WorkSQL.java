@@ -1,5 +1,8 @@
 package Person;
 
+import Person.Person;
+import Person.WriteReadble;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -64,10 +67,10 @@ public class WorkSQL implements WriteReadble {
     @Override
     public List<Person> read() {
         ArrayList<Person> people = new ArrayList<Person>();
-        try(Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
             Statement statement = conn.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM person_table");
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 people.add(new Person.PersonBuilder()
                         .id(resultSet.getInt("id"))
                         .name(resultSet.getInt("name"))

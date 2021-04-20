@@ -26,7 +26,6 @@ public class WorkFile implements WriteReadble {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(file))) {
             for (Person p : group) {
                 objectOutputStream.writeObject(p);
-
             }
 
         } catch (IOException e) {
