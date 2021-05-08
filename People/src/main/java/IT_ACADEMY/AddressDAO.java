@@ -1,43 +1,61 @@
 package IT_ACADEMY;
 
 import java.io.Serializable;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by .
  */
-public class AddressDAO implements DAO<Address> {
-    private String URL = "jdbc:mysql://localhost:3306/people_home?useUnicode=true&serverTimezone=UTC";
-    private String USER = "root";
-    private String PASSWORD = "admin";
+public class AddressDAO implements DAOAddress {
+    private String URL;
+    private String USER;
+    private String PASSWORD;
+
+    public AddressDAO(String URL, String USER, String PASSWORD) {
+        this.URL = URL;
+        this.USER = USER;
+        this.PASSWORD = PASSWORD;
+    }
 
     @Override
     public Address save(Address address) throws SQLException {
         loadDriver();
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO address(street,house) VALUES (?,?);");
-        PreparedStatement preparedStatement1 = connection.prepareStatement("SELECT * FROM address WHERE street=? and house=? ORDER BY id DESC ;");
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            connection.setAutoCommit(false);
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO address(street,house) VALUES (?,?);");
+            PreparedStatement preparedStatement1 = connection.prepareStatement("SELECT * FROM address WHERE street=? and house=? ORDER BY id DESC ;");
 
-        preparedStatement.setString(1, address.getStreet());
-        preparedStatement.setInt(2, address.getHouse());
-        preparedStatement.executeUpdate();
+            preparedStatement.setString(1, address.getStreet());
+            preparedStatement.setInt(2, address.getHouse());
+            preparedStatement.executeUpdate();
 
-        preparedStatement1.setString(1, address.getStreet());
-        preparedStatement1.setInt(2, address.getHouse());
+            preparedStatement1.setString(1, address.getStreet());
+            preparedStatement1.setInt(2, address.getHouse());
 
-        ResultSet resultSet = preparedStatement1.executeQuery();
-        while (resultSet.next()) {
-            address.setId(resultSet.getInt("id"));
+            ResultSet resultSet = preparedStatement1.executeQuery();
+            while (resultSet.next()) {
+                address.setId(resultSet.getInt("id"));
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            if (connection != null) {
+                connection.rollback();
+            }
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
         }
-
-        connection.close();
-        preparedStatement.close();
-        preparedStatement1.close();
-
         return address;
     }
 
@@ -50,30 +68,25 @@ public class AddressDAO implements DAO<Address> {
         preparedStatement.setInt(1, (Integer) id);
         ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
-            address = Address.build()
+            address = Address.builder()
                     .street(resultSet.getString("street"))
                     .house(resultSet.getInt("house"))
-                    .builder();
+                    .build();
         }
 
         connection.close();
-        preparedStatement.close();
         return address;
     }
 
     @Override
-    public void change(Serializable id) throws SQLException {
-
+    public void change(Serializable id, int value) throws SQLException {
         loadDriver();
         Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE address SET house=house+? WHERE id=?;");
-        preparedStatement.setInt(1, 2);
-        preparedStatement.setInt(2, (Integer) id);
-        preparedStatement.executeUpdate();
-
+        CallableStatement callableStatement = connection.prepareCall("{CALL setHouse(?,?)};");
+        callableStatement.setInt(1, (Integer) id);
+        callableStatement.setInt(2, value);
+        callableStatement.execute();
         connection.close();
-        preparedStatement.close();
-
     }
 
     @Override
@@ -85,19 +98,19 @@ public class AddressDAO implements DAO<Address> {
 
         preparedStatement.executeUpdate();
         connection.close();
-        preparedStatement.close();
         return 0;
     }
 
-    public Integer count() throws SQLException{
-        int count=0;
+    public Integer count() throws SQLException {
+        int count = 0;
         loadDriver();
         Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM address;");
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT MAx(id) FROM address;");
         ResultSet resultSet = preparedStatement.executeQuery();
-        while (resultSet.next()){
-            count++;
+        while (resultSet.next()) {
+            count = resultSet.getInt("MAX(id)");
         }
+        connection.close();
         return count;
     }
 
@@ -107,5 +120,23 @@ public class AddressDAO implements DAO<Address> {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Address> readDB() throws SQLException {
+        ArrayList<Address> addresses = new ArrayList<>();
+
+        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM address;");
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+            addresses.add(Address.builder()
+                    .id(resultSet.getInt("id"))
+                    .street(resultSet.getString("street"))
+                    .house(resultSet.getInt("house"))
+                    .build());
+        }
+        connection.close();
+        return addresses;
     }
 }

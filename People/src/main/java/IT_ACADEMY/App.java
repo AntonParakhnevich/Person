@@ -1,6 +1,9 @@
 package IT_ACADEMY;
 
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -9,16 +12,22 @@ import java.util.List;
  * Hello world!
  */
 public class App {
-    public static void main(String[] args) {
+    private static final String URL = "jdbc:mysql://localhost:3306/people_home?useUnicode=true&serverTimezone=UTC";
+    private static final String USER = "root";
+    private static final String PASSWORD = "admin";
 
-        PeopleDAO peopleDAO = new PeopleDAO();
-        AddressDAO addressDAO = new AddressDAO();
+    public static void main(String[] args) throws SQLException {
+
+
+        PeopleDAO peopleDAO = new PeopleDAO(URL, USER, PASSWORD);
+        AddressDAO addressDAO = new AddressDAO(URL, USER, PASSWORD);
 
         List<People> peoples = generatePeople();
         List<Address> addresses = generateAddress();
 
         addPeopleInDB(peoples, peopleDAO);
         changeAge(peoples, peopleDAO);
+
         try {
             peopleDAO.delete(1);
         } catch (SQLException e) {
@@ -32,18 +41,16 @@ public class App {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-
+        peopleDAO.addAddress(15, 3);
     }
 
     private static void changeAge(List<People> peoples, PeopleDAO dao) {
-        int a = 0;
         try {
-            a = dao.count();
+            int a = dao.count();
             for (int i = a - 1; i <= a; i++) {
                 for (People p : peoples) {
                     if (p.getId() == i) {
-                        dao.change(i);
+                        dao.change(i, 2);
                         p.setAge(dao.get(i).getAge());
                     }
                 }
@@ -59,7 +66,7 @@ public class App {
             for (int i = a - 1; i <= a; i++) {
                 for (Address ad : addresses) {
                     if (ad.getId() == i) {
-                        dao.change(i);
+                        dao.change(i, 10);
                         ad.setHouse(dao.get(i).getHouse());
                     }
                 }
@@ -91,57 +98,56 @@ public class App {
 
 
     private static List<People> generatePeople() {
-        List<People> people = Arrays.asList(
-                People.build()
+        return Arrays.asList(
+
+                People.builder()
                         .name("Anton")
                         .age(22)
                         .surname("Parakhnevich")
-                        .builder(),
-                People.build()
+                        .build(),
+                People.builder()
                         .name("Ivan")
                         .age(25)
                         .surname("Ivanov")
-                        .builder(),
-                People.build()
+                        .build(),
+                People.builder()
                         .name("Petr")
                         .surname("Petrov")
                         .age(30)
-                        .builder(),
-                People.build()
+                        .build(),
+                People.builder()
                         .name("Sergei")
                         .surname("Mashkov")
                         .age(27)
-                        .builder(),
-                People.build()
+                        .build(),
+                People.builder()
                         .name("Kolya")
                         .surname("Igonin")
                         .age(35)
-                        .builder());
-        return people;
+                        .build());
     }
 
     private static List<Address> generateAddress() {
-        List<Address> addresses = Arrays.asList(
-                Address.build()
+        return Arrays.asList(
+                Address.builder()
                         .street("Matusevicha")
                         .house(20)
-                        .builder(),
-                Address.build()
+                        .build(),
+                Address.builder()
                         .street("Minskaya")
                         .house(10)
-                        .builder(),
-                Address.build()
+                        .build(),
+                Address.builder()
                         .street("Pobediteley")
                         .house(105)
-                        .builder(),
-                Address.build()
+                        .build(),
+                Address.builder()
                         .street("Nezavisimosti")
                         .house(28)
-                        .builder(),
-                Address.build()
+                        .build(),
+                Address.builder()
                         .street("Batova")
                         .house(30)
-                        .builder());
-        return addresses;
+                        .build());
     }
 }

@@ -6,39 +6,56 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by .
  */
-public class PeopleDAO implements DAO<People> {
-    private String URL = "jdbc:mysql://localhost:3306/people_home?useUnicode=true&serverTimezone=UTC";
-    private String USER = "root";
-    private String PASSWORD = "admin";
+public class PeopleDAO implements DAOPeople {
+    private String URL;
+    private String USER;
+    private String PASSWORD;
+
+    public PeopleDAO(String URL, String USER, String PASSWORD) {
+        this.URL = URL;
+        this.USER = USER;
+        this.PASSWORD = PASSWORD;
+    }
 
     @Override
     public People save(People people) throws SQLException {
         loadDriver();
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            connection.setAutoCommit(false);
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO people (name,surname,age) VALUES (?,?,?);");
+            PreparedStatement preparedStatement1 = connection.prepareStatement("SELECT * FROM people WHERE name=? and surname=? and age=? ORDER BY id DESC; ");
+            preparedStatement.setString(1, people.getName());
+            preparedStatement.setString(2, people.getSurname());
+            preparedStatement.setInt(3, people.getAge());
+            preparedStatement.executeUpdate();
 
-        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO people (name,surname,age) VALUES (?,?,?);");
-        PreparedStatement preparedStatement1 = connection.prepareStatement("SELECT * FROM people WHERE name=? and surname=? and age=? ORDER BY id DESC; ");
-        preparedStatement.setString(1, people.getName());
-        preparedStatement.setString(2, people.getSurname());
-        preparedStatement.setInt(3, people.getAge());
-        preparedStatement.executeUpdate();
+            preparedStatement1.setString(1, people.getName());
+            preparedStatement1.setString(2, people.getSurname());
+            preparedStatement1.setInt(3, people.getAge());
 
-        preparedStatement1.setString(1, people.getName());
-        preparedStatement1.setString(2, people.getSurname());
-        preparedStatement1.setInt(3, people.getAge());
-
-        ResultSet resultSet = preparedStatement1.executeQuery();
-        while (resultSet.next()) {
-            people.setId(resultSet.getInt("id"));
+            ResultSet resultSet = preparedStatement1.executeQuery();
+            while (resultSet.next()) {
+                people.setId(resultSet.getInt("id"));
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            if (connection != null) {
+                connection.rollback();
+            }
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
         }
-
-        connection.close();
-        preparedStatement.close();
-        preparedStatement1.close();
         return people;
     }
 
@@ -53,24 +70,23 @@ public class PeopleDAO implements DAO<People> {
         preparedStatement.setInt(1, (Integer) id);
         ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
-            people = People.build()
+            people = People.builder()
                     .name(resultSet.getString("name"))
                     .surname(resultSet.getString("surname"))
                     .age(resultSet.getInt("age"))
-                    .builder();
+                    .build();
         }
 
         connection.close();
-        preparedStatement.close();
         return people;
     }
 
     @Override
-    public void change(Serializable id) throws SQLException {
+    public void change(Serializable id, int value) throws SQLException {
         loadDriver();
         Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
         PreparedStatement preparedStatement = connection.prepareStatement("UPDATE people SET age=age+? WHERE id=?;");
-        preparedStatement.setInt(1, 2);
+        preparedStatement.setInt(1, value);
         preparedStatement.setInt(2, (Integer) id);
         preparedStatement.executeUpdate();
         preparedStatement.close();
@@ -87,7 +103,6 @@ public class PeopleDAO implements DAO<People> {
         preparedStatement.executeUpdate();
 
         connection.close();
-        preparedStatement.close();
         return 0;
     }
 
@@ -103,11 +118,56 @@ public class PeopleDAO implements DAO<People> {
         int count = 0;
         loadDriver();
         Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM people;");
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT MAX(id) FROM people;");
         ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
-            count++;
+            count = resultSet.getInt("MAX(id)");
         }
+        connection.close();
         return count;
+    }
+
+    @Override
+    public void addAddress(int people_id, int address_id) throws SQLException {
+        loadDriver();
+        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE people SET address_id=? WHERE id=?;");
+        preparedStatement.setInt(1, address_id);
+        preparedStatement.setInt(2, people_id);
+        preparedStatement.executeUpdate();
+        connection.close();
+    }
+
+    public List<People> readDB() throws SQLException {
+        ArrayList<People> peoples = new ArrayList<>();
+
+        Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM people;");
+        PreparedStatement preparedStatement1 = connection.prepareStatement("SELECT * FROM address WHERE id=?;");
+
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()) {
+            Address address = null;
+            preparedStatement1.setInt(1, resultSet.getInt("address_id"));
+            ResultSet resultSet1 = preparedStatement1.executeQuery();
+            while (resultSet1.next()) {
+                address = Address.builder()
+                        .id(resultSet1.getInt("id"))
+                        .street(resultSet1.getString("street"))
+                        .house(resultSet1.getInt("house"))
+                        .build();
+            }
+            peoples.add(People.builder()
+                    .id(resultSet.getInt("id"))
+                    .name(resultSet.getString("name"))
+                    .surname(resultSet.getString("surname"))
+                    .age(resultSet.getInt("age"))
+                    .address(address)
+                    .build());
+        }
+        connection.close();
+        return peoples;
     }
 }
