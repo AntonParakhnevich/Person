@@ -1,10 +1,6 @@
 package Person;
 
-import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -31,6 +27,8 @@ public class App {
 
     public static void main(String[] args) {
         File file = new File("group.txt");
+        File file1 = new File("group.txt");
+        File file2 = new File("group.txt");
 
         Work workSQL = new Work(new WorkSQL(URL, USER, PASSWORD, SQL));
         Work workFile = new Work(new WorkFile(file));
