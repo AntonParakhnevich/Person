@@ -1,4 +1,6 @@
-package IT_ACADEMY;
+package IT_ACADEMY.DAO;
+
+import IT_ACADEMY.People;
 
 import java.sql.SQLException;
 

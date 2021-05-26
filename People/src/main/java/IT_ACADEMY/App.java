@@ -1,12 +1,14 @@
 package IT_ACADEMY;
 
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import IT_ACADEMY.Util.HibernateSessionFactoryUtil;
+
+import javax.persistence.EntityManager;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Hello world!
@@ -17,85 +19,21 @@ public class App {
     private static final String PASSWORD = "admin";
 
     public static void main(String[] args) throws SQLException {
-
-
-        PeopleDAO peopleDAO = new PeopleDAO(URL, USER, PASSWORD);
-        AddressDAO addressDAO = new AddressDAO(URL, USER, PASSWORD);
-
         List<People> peoples = generatePeople();
         List<Address> addresses = generateAddress();
 
-        addPeopleInDB(peoples, peopleDAO);
-        changeAge(peoples, peopleDAO);
+        PeopleService peopleService = new PeopleService(URL, USER, PASSWORD);
+        AddressService addressService = new AddressService(URL, USER, PASSWORD);
 
-        try {
-            peopleDAO.delete(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        peopleService.saveAll(peoples);
+        addressService.saveAll(addresses);
 
-        addAddressInDB(addresses, addressDAO);
-        changeHouse(addresses, addressDAO);
-        try {
-            addressDAO.delete(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        peopleDAO.addAddress(15, 3);
+        peopleService.delete(23);
+        addressService.delete(45);
+
+
+        HibernateSessionFactoryUtil.close();
     }
-
-    private static void changeAge(List<People> peoples, PeopleDAO dao) {
-        try {
-            int a = dao.count();
-            for (int i = a - 1; i <= a; i++) {
-                for (People p : peoples) {
-                    if (p.getId() == i) {
-                        dao.change(i, 2);
-                        p.setAge(dao.get(i).getAge());
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void changeHouse(List<Address> addresses, AddressDAO dao) {
-        try {
-            int a = dao.count();
-            for (int i = a - 1; i <= a; i++) {
-                for (Address ad : addresses) {
-                    if (ad.getId() == i) {
-                        dao.change(i, 10);
-                        ad.setHouse(dao.get(i).getHouse());
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void addPeopleInDB(List<People> list, PeopleDAO dao) {
-        for (People p : list) {
-            try {
-                dao.save(p);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static void addAddressInDB(List<Address> list, AddressDAO dao) {
-        for (Address a : list) {
-            try {
-                dao.save(a);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 
     private static List<People> generatePeople() {
         return Arrays.asList(
