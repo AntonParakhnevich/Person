@@ -7,8 +7,8 @@
         <!--        <jta-data-source>java:/DefaultDS</jta-data-source>-->
         <!--        <mapping-file>ormap.xml</mapping-file>-->
         <!--        <jar-file>MyApp.jar</jar-file>-->
-                <class>IT_ACADEMY.People</class>
-                <class>IT_ACADEMY.Address</class>
+                <class>IT_ACADEMY.Entity.People</class>
+                <class>IT_ACADEMY.Entity.Address</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.url"

@@ -1,50 +1,47 @@
-package IT_ACADEMY;
+package IT_ACADEMY.Entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by .
  */
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
 @Table
-public class Address implements Serializable {
+@Entity
+public class People implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column
-    private String street;
+    private String name;
     @Column
-    private int house;
+    private String surname;
+    @Column
+    private int age;
+    @OneToMany(mappedBy = "people", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addresses;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "people_id")
-    private People people;
-
-    @Override
-    public String toString() {
-        return "Address{" +
-                "id=" + id +
-                ", street='" + street + '\'' +
-                ", house=" + house +
-                '}';
+    public void addAddress(Address address) {
+        address.setPeople(this);
+        addresses.add(address);
     }
+
 }

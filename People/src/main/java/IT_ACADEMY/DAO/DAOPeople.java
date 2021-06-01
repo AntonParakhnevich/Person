@@ -1,6 +1,6 @@
 package IT_ACADEMY.DAO;
 
-import IT_ACADEMY.People;
+import IT_ACADEMY.Entity.People;
 
 import java.sql.SQLException;
 

@@ -1,6 +1,6 @@
 package IT_ACADEMY.DAO;
 
-import IT_ACADEMY.Address;
+import IT_ACADEMY.Entity.Address;
 
 /**
  * Created by .

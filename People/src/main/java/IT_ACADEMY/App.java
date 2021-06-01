@@ -1,14 +1,15 @@
 package IT_ACADEMY;
 
 
-import IT_ACADEMY.Util.HibernateSessionFactoryUtil;
+import IT_ACADEMY.Entity.Address;
+import IT_ACADEMY.Entity.People;
+import IT_ACADEMY.Service.AddressService;
+import IT_ACADEMY.Service.PeopleService;
+import IT_ACADEMY.Util.SessionUtil;
 
-import javax.persistence.EntityManager;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Hello world!
@@ -25,14 +26,18 @@ public class App {
         PeopleService peopleService = new PeopleService(URL, USER, PASSWORD);
         AddressService addressService = new AddressService(URL, USER, PASSWORD);
 
-        peopleService.saveAll(peoples);
-        addressService.saveAll(addresses);
+//        addressService.saveAll(addresses);
+//        addressService.change(52,5);
+//        System.out.println(addressService.readDB());
 
-        peopleService.delete(23);
-        addressService.delete(45);
+//        peopleService.saveAll(peoples);
+//        peopleService.change(33,2);
+//        peopleService.delete(41);
+//        peopleService.addAddress(39,52);
+//        peopleService.get(24);
 
-
-        HibernateSessionFactoryUtil.close();
+        System.out.println(peopleService.readDB());
+        SessionUtil.close();
     }
 
     private static List<People> generatePeople() {

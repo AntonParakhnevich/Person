@@ -1,7 +1,10 @@
 package IT_ACADEMY.DAO;
 
-import IT_ACADEMY.Address;
+import IT_ACADEMY.Entity.Address;
 import IT_ACADEMY.Util.HibernateSessionFactoryUtil;
+import IT_ACADEMY.Util.SessionUtil;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -24,50 +27,49 @@ public class AddressDAO implements DAOAddress {
     }
 
     public void save(Address address) throws SQLException {
-        EntityManager entityManager = HibernateSessionFactoryUtil.getEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
+        Session session = SessionUtil.getSessionFactory().openSession();
+        Transaction transaction = session.getTransaction();
         transaction.begin();
-        entityManager.persist(address);
+        session.save(address);
         transaction.commit();
     }
 
     @Override
     public Address get(Serializable id) throws SQLException {
-        EntityManager entityManager = HibernateSessionFactoryUtil.getEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
+        Session session = SessionUtil.getSessionFactory().openSession();
+        Transaction transaction = session.getTransaction();
         transaction.begin();
-        Address address = entityManager.find(Address.class, id);
+        Address address = session.get(Address.class, id);
         transaction.commit();
         return address;
     }
 
     @Override
     public void change(Serializable id, int value) throws SQLException {
-        EntityManager entityManager = HibernateSessionFactoryUtil.getEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
+        Session session = SessionUtil.getSessionFactory().openSession();
+        Transaction transaction = session.getTransaction();
         transaction.begin();
-        Address address = entityManager.find(Address.class, id);
-        address.setHouse(address.getHouse() + value);
-        entityManager.merge(address);
+        Address address = session.get(Address.class, id);
+        address.setHouse(address.getHouse()+value);
+        session.update(address);
         transaction.commit();
     }
 
     @Override
     public int delete(Serializable id) throws SQLException {
-        EntityManager entityManager = HibernateSessionFactoryUtil.getEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        entityManager.remove(entityManager.find(Address.class, id));
-        transaction.commit();
+        Session session = SessionUtil.getSessionFactory().openSession();
+        session.getTransaction().begin();
+        session.delete(session.get(Address.class,id));
+        session.getTransaction().commit();
         return 0;
     }
 
     public List<Address> readDB() throws SQLException {
-        EntityManager entityManager = HibernateSessionFactoryUtil.getEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        List addresses = entityManager.createNativeQuery("SELECT * FROM address", Address.class).getResultList();
-        transaction.commit();
+        Session session = SessionUtil.getSessionFactory().openSession();
+        session.getTransaction().begin();
+        List<Address> addresses = session.createNativeQuery("SELECT * FROM address", Address.class).getResultList();
+        session.getTransaction().commit();
         return addresses;
     }
+
 }

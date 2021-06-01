@@ -1,6 +1,7 @@
-package IT_ACADEMY;
+package IT_ACADEMY.Service;
 
-import IT_ACADEMY.DAO.AddressDAO;
+import IT_ACADEMY.DAO.PeopleDAO;
+import IT_ACADEMY.Entity.People;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -9,39 +10,39 @@ import java.util.List;
 /**
  * Created by .
  */
-public class AddressService {
+public class PeopleService {
     private String URL;
     private String USER;
     private String PASSWORD;
-    private AddressDAO addressDAO = new AddressDAO(URL, USER, PASSWORD);
+    private PeopleDAO peopleDAO = new PeopleDAO(URL, USER, PASSWORD);
 
-    public AddressService(String URL, String USER, String PASSWORD) {
+    public PeopleService(String URL, String USER, String PASSWORD) {
         this.URL = URL;
         this.USER = USER;
         this.PASSWORD = PASSWORD;
     }
 
-    public void save(Address address){
+    public void save(People people){
         try {
-            addressDAO.save(address);
+            peopleDAO.save(people);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }
 
-    public void saveAll(List<Address> addresses){
-        for (Address a : addresses) {
+    public void saveAll(List<People> peoples){
+        for (People p : peoples) {
             try {
-                addressDAO.save(a);
+                peopleDAO.save(p);
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         }
     }
 
-    public Address get(Serializable id){
+    public People get(Serializable id){
         try {
-            return addressDAO.get(id);
+            return peopleDAO.get(id);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -50,23 +51,31 @@ public class AddressService {
 
     public void delete(Serializable id){
         try {
-            addressDAO.delete(id);
+            peopleDAO.delete(id);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }
 
-    public void change(Serializable id,int value){
+    public void change(Serializable id, int value){
         try {
-            addressDAO.change(id,value);
+            peopleDAO.change(id,value);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
     }
 
-    public List<Address> readDB(){
+    public void addAddress(int people_id,int address_id){
         try {
-            return addressDAO.readDB();
+            peopleDAO.addAddress(people_id,address_id);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public List<People> readDB(){
+        try {
+            return peopleDAO.readDB();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
