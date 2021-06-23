@@ -2,6 +2,7 @@ package ITAcademy.Service;
 
 import ITAcademy.DAO.DAOShop;
 import ITAcademy.DAO.DAOShopImpl;
+import ITAcademy.Entity.Manager;
 import ITAcademy.Entity.Shop;
 import org.hibernate.Session;
 
