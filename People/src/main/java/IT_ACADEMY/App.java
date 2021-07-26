@@ -20,24 +20,31 @@ public class App {
     private static final String PASSWORD = "admin";
 
     public static void main(String[] args) throws SQLException {
-        List<People> peoples = generatePeople();
-        List<Address> addresses = generateAddress();
+//        List<People> peoples = generatePeople();
+//        List<Address> addresses = generateAddress();
+//
+//        PeopleService peopleService = new PeopleService(URL, USER, PASSWORD);
+//        AddressService addressService = new AddressService(URL, USER, PASSWORD);
+//
+////        addressService.saveAll(addresses);
+////        addressService.change(52,5);
+////        System.out.println(addressService.readDB());
+//
+////        peopleService.saveAll(peoples);
+////        peopleService.change(33,2);
+////        peopleService.delete(41);
+////        peopleService.addAddress(39,52);
+////        peopleService.get(24);
+//
+//        System.out.println(peopleService.readDB());
+//        SessionUtil.close();
 
-        PeopleService peopleService = new PeopleService(URL, USER, PASSWORD);
-        AddressService addressService = new AddressService(URL, USER, PASSWORD);
+        Integer i=0;
+        String st="0";
+        System.out.println(Integer.valueOf(i+st));
 
-//        addressService.saveAll(addresses);
-//        addressService.change(52,5);
-//        System.out.println(addressService.readDB());
-
-//        peopleService.saveAll(peoples);
-//        peopleService.change(33,2);
-//        peopleService.delete(41);
-//        peopleService.addAddress(39,52);
-//        peopleService.get(24);
-
-        System.out.println(peopleService.readDB());
-        SessionUtil.close();
+        String str="0123456";
+        System.out.println(str.substring(0,3));
     }
 
     private static List<People> generatePeople() {
